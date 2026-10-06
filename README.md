@@ -2,6 +2,21 @@
 
 Jetpack Compose Android app for the CampusConnect student super-platform.
 
+This repository contains the Android app and the CampusConnect API in `backend/`.
+
+## Run the Backend Locally
+
+From a terminal at the repository root:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+Set-Location backend
+npm ci
+docker compose up --build
+```
+
+The API is available at `http://localhost:3000/api/v1` and Swagger at `http://localhost:3000/api/docs`. The Android emulator is configured to reach the host API through `10.0.2.2`.
+
 ## Tech Stack
 
 | Layer | Choice |

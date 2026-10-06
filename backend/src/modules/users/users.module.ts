@@ -1,0 +1,15 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { User } from './entities/user.entity';
+import { UserFollow } from './entities/user-follow.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User, UserFollow, RefreshToken])],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService, TypeOrmModule],
+})
+export class UsersModule {}

@@ -1,0 +1,39 @@
+name: CD — Deploy to Production
+
+on:
+  push:
+    branches: [main]
+    tags    : ['v*']
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host    : ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key     : ${{ secrets.DEPLOY_SSH_KEY }}
+          script  : |
+            cd /opt/campusconnect
+            git pull origin main
+            docker-compose pull api
+            docker-compose up -d --no-deps api
+            docker-compose exec -T api npm run migration:run
+            echo "✅ Deployment complete — $(date)"
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "🚀 CampusConnect deployed successfully"
+          echo "Version: ${{ github.sha }}"
+
+      - name: Notify on failure
+        if: failure()
+        run: echo "❌ Deployment failed — check logs"
