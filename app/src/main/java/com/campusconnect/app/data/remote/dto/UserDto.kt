@@ -1,0 +1,25 @@
+package com.campusconnect.app.data.remote.dto
+
+data class UserDto(
+    val id              : String,
+    val email           : String?          = null,
+    val username        : String,
+    val firstName       : String,
+    val lastName        : String,
+    val avatarUrl       : String?          = null,
+    val coverImageUrl   : String?          = null,
+    val bio             : String?          = null,
+    val university      : String?          = null,
+    val studentId       : String?          = null,
+    val courseOfStudy   : String?          = null,
+    val yearOfStudy     : Int?             = null,
+    val role            : String           = "student",
+    val isVerified      : Boolean          = false,
+    val isEmailVerified : Boolean          = false,
+    val reputationPoints: Int              = 0,
+    val followersCount  : Int              = 0,
+    val followingCount  : Int              = 0,
+    val postsCount      : Int              = 0,
+    val lastSeenAt      : String?          = null,
+    val createdAt       : String?          = null,
+)
