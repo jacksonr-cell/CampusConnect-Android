@@ -7,6 +7,10 @@ import { Property } from './entities/property.entity';
 import { AccommodationBooking, BookingStatus } from './entities/booking.entity';
 import { PropertyReview } from './entities/property-review.entity';
 import { SavedListing } from './entities/saved-listing.entity';
+import { CreatePropertyDto } from './dto/create-property.dto';
+import { UpdatePropertyDto } from './dto/update-property.dto';
+import { CreateInquiryDto } from './dto/create-inquiry.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
 import { PaginationDto, paginate, PaginatedResult } from '../../common/dto/pagination.dto';
 
 @Injectable()
@@ -52,13 +56,13 @@ export class AccommodationService {
     return property;
   }
 
-  async createProperty(landlordId: string, dto: any): Promise<Property> {
+  async createProperty(landlordId: string, dto: CreatePropertyDto): Promise<Property> {
     return this.propertyRepository.save(
       this.propertyRepository.create({ ...dto, landlordId }),
     );
   }
 
-  async updateProperty(id: string, landlordId: string, dto: any): Promise<Property> {
+  async updateProperty(id: string, landlordId: string, dto: UpdatePropertyDto): Promise<Property> {
     const property = await this.propertyRepository.findOne({ where: { id } });
     if (!property) throw new NotFoundException('Property not found');
     if (property.landlordId !== landlordId) throw new ForbiddenException();
@@ -73,7 +77,7 @@ export class AccommodationService {
     await this.propertyRepository.remove(property);
   }
 
-  async createInquiry(propertyId: string, studentId: string, dto: any): Promise<AccommodationBooking> {
+  async createInquiry(propertyId: string, studentId: string, dto: CreateInquiryDto): Promise<AccommodationBooking> {
     const property = await this.propertyRepository.findOne({ where: { id: propertyId } });
     if (!property) throw new NotFoundException('Property not found');
     await this.propertyRepository.increment({ id: propertyId }, 'inquiriesCount', 1);
@@ -110,7 +114,7 @@ export class AccommodationService {
     return paginate(saved.map((s) => s.property), total, page, limit);
   }
 
-  async addReview(propertyId: string, reviewerId: string, dto: any): Promise<PropertyReview> {
+  async addReview(propertyId: string, reviewerId: string, dto: CreateReviewDto): Promise<PropertyReview> {
     const property = await this.propertyRepository.findOne({ where: { id: propertyId } });
     if (!property) throw new NotFoundException('Property not found');
     if (await this.reviewRepository.findOne({ where: { propertyId, reviewerId } })) {

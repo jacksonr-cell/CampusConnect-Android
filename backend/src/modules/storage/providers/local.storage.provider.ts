@@ -33,7 +33,7 @@ export class LocalStorageProvider implements IStorageProvider {
     const fullPath = path.join(this.uploadDest, key);
     try {
       await fs.unlink(fullPath);
-    } catch (error) {
+    } catch {
       // File may already be gone — not fatal
       this.logger.warn(`Could not delete local file: ${key}`);
     }

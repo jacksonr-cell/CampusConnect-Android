@@ -1,6 +1,7 @@
 package com.campusconnect.app.ui.screens.onboarding
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*

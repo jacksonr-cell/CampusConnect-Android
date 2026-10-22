@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Message } from '../messaging/entities/message.entity';
 import { ConversationParticipant } from '../messaging/entities/conversation-participant.entity';
 import { Conversation } from '../messaging/entities/conversation.entity';
+import { MessageType } from '../messaging/entities/message.entity';
 
 @Injectable()
 export class WebSocketService {
@@ -28,7 +29,7 @@ export class WebSocketService {
     senderId: string,
     dto: {
       content?     : string;
-      messageType? : string;
+      messageType? : MessageType;
       mediaUrl?    : string;
       replyToId?   : string;
     },

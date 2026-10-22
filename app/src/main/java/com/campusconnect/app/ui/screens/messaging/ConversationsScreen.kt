@@ -71,7 +71,12 @@ fun ConversationsScreen(
             onRefresh    = { viewModel.loadConversations(refresh = true) },
             modifier     = Modifier.fillMaxSize().padding(padding),
             indicator    = {
-                PullToRefreshDefaults.Indicator(state = pullState, color = ElectricPurple, containerColor = ElevatedSurface)
+                PullToRefreshDefaults.Indicator(
+                    isRefreshing = (state as? ConversationsUiState.Success)?.isRefreshing == true,
+                    state = pullState,
+                    color = ElectricPurple,
+                    containerColor = ElevatedSurface,
+                )
             },
         ) {
             when (val s = state) {

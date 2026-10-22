@@ -49,6 +49,7 @@ services:
     environment:
       NODE_ENV          : development
       PORT              : 3000
+      TYPEORM_RUN_MIGRATIONS: 'true'
       DATABASE_HOST     : postgres
       DATABASE_PORT     : 5432
       DATABASE_USERNAME : ${DATABASE_USERNAME:-campusconnect}

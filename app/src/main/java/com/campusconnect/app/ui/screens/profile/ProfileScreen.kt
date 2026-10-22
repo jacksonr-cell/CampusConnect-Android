@@ -2,6 +2,7 @@ package com.campusconnect.app.ui.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -464,15 +466,8 @@ private fun ProfileTabRow(selected: ProfileTab, onSelect: (ProfileTab) -> Unit, 
     }
 }
 
-private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier = this.then(
-    Modifier.then(
-        androidx.compose.foundation.clickable(
-            interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-            indication = null,
-            onClick = onClick,
-        )
-    )
-)
+private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier =
+    clickable(interactionSource = null, indication = null, onClick = onClick)
 
 // ── Badges — preview (sidebar) and full grid (tab) ──────────────────────────
 

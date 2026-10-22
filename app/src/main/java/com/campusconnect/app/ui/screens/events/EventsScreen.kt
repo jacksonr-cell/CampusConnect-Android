@@ -49,7 +49,12 @@ fun EventsScreen(
             onRefresh    = { viewModel.loadEvents(refresh = true) },
             modifier     = Modifier.fillMaxSize().padding(padding),
             indicator    = {
-                PullToRefreshDefaults.Indicator(state = pullState, color = ElectricPurple, containerColor = ElevatedSurface)
+                PullToRefreshDefaults.Indicator(
+                    isRefreshing = (state as? EventsUiState.Success)?.isRefreshing == true,
+                    state = pullState,
+                    color = ElectricPurple,
+                    containerColor = ElevatedSurface,
+                )
             },
         ) {
             when (val s = state) {

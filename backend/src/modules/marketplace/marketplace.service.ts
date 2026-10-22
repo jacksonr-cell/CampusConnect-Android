@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MarketplaceListing, ListingStatus } from './entities/listing.entity';
+import { CreateListingDto } from './dto/create-listing.dto';
+import { UpdateListingDto } from './dto/update-listing.dto';
 import { PaginationDto, paginate, PaginatedResult } from '../../common/dto/pagination.dto';
 
 @Injectable()
@@ -47,13 +49,13 @@ export class MarketplaceService {
     return listing;
   }
 
-  async createListing(sellerId: string, dto: any): Promise<MarketplaceListing> {
+  async createListing(sellerId: string, dto: CreateListingDto): Promise<MarketplaceListing> {
     return this.listingRepository.save(
       this.listingRepository.create({ ...dto, sellerId }),
     );
   }
 
-  async updateListing(id: string, sellerId: string, dto: any): Promise<MarketplaceListing> {
+  async updateListing(id: string, sellerId: string, dto: UpdateListingDto): Promise<MarketplaceListing> {
     const listing = await this.listingRepository.findOne({ where: { id } });
     if (!listing) throw new NotFoundException('Listing not found');
     if (listing.sellerId !== sellerId) throw new ForbiddenException();

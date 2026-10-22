@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  IsString, IsArray, IsUUID, MinLength, MaxLength, ArrayMinSize,
+  IsString, IsArray, IsUUID, IsOptional, MinLength, MaxLength, ArrayMinSize,
 } from 'class-validator';
 
 export class CreateGroupDto {

@@ -17,6 +17,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WebSocketService } from './websocket.service';
 import { User } from '../users/entities/user.entity';
+import { MessageType } from '../messaging/entities/message.entity';
 
 interface AuthenticatedSocket extends Socket {
   userId: string;
@@ -146,7 +147,7 @@ export class CampusConnectGateway
     @MessageBody() data: {
       conversationId: string;
       content?       : string;
-      messageType?   : string;
+      messageType?   : MessageType;
       mediaUrl?      : string;
       replyToId?     : string;
     },

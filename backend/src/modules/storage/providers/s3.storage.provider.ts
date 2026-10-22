@@ -62,7 +62,7 @@ export class S3StorageProvider implements IStorageProvider {
   async delete(key: string): Promise<void> {
     try {
       await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
-    } catch (error) {
+    } catch {
       this.logger.warn(`Could not delete S3 object: ${key}`);
     }
   }

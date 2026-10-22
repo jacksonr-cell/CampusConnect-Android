@@ -35,7 +35,6 @@ import { WebSocketModule } from './modules/websocket/websocket.module';
 
 // ── Round 3 — Uploads, Search, Reports, Admin
 import { StorageModule } from './modules/storage/storage.module';
-import { UploadsModule } from './modules/uploads/uploads.module';
 import { SearchModule }  from './modules/search/search.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AdminModule }   from './modules/admin/admin.module';
@@ -60,7 +59,7 @@ import { AdminModule }   from './modules/admin/admin.module';
         password     : cfg.get<string>('database.password'),
         database     : cfg.get<string>('database.name'),
         autoLoadEntities: true,
-        synchronize  : cfg.get<string>('NODE_ENV') !== 'production',
+        synchronize  : false,
         migrationsRun: cfg.get<string>('TYPEORM_RUN_MIGRATIONS') === 'true',
         migrations   : [__dirname + '/database/migrations/**/*{.ts,.js}'],
         logging      : cfg.get<string>('NODE_ENV') === 'development',
@@ -104,7 +103,6 @@ import { AdminModule }   from './modules/admin/admin.module';
     GamificationModule,
 
     // ── Round 3 ───────────────────────────────────────────────────────────
-    UploadsModule,
     SearchModule,
     ReportsModule,
     AdminModule,

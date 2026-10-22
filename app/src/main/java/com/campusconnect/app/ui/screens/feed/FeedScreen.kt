@@ -110,7 +110,12 @@ fun FeedScreen(
                 isRefreshing = (feedState as? FeedState.Success)?.isRefreshing == true,
                 onRefresh  = { viewModel.loadFeed(refresh = true) },
                 modifier   = Modifier.fillMaxSize(),
-                indicator  = { PurplePullIndicator(state = pullState) },
+                indicator  = {
+                    PurplePullIndicator(
+                        state = pullState,
+                        isRefreshing = (feedState as? FeedState.Success)?.isRefreshing == true,
+                    )
+                },
             ) {
                 LazyColumn(
                     state             = listState,
@@ -233,8 +238,6 @@ private fun FeedTopAppBar(
 }
 
 // ── Stories Section ───────────────────────────────────────────────────────
-
-@Composable
 // ── Section Divider ───────────────────────────────────────────────────────
 
 @Composable
@@ -261,8 +264,9 @@ private fun SectionDivider() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PurplePullIndicator(state: PullToRefreshState) {
+private fun PurplePullIndicator(state: PullToRefreshState, isRefreshing: Boolean) {
     PullToRefreshDefaults.Indicator(
+        isRefreshing = isRefreshing,
         state      = state,
         color      = ElectricPurple,
         containerColor = ElevatedSurface,

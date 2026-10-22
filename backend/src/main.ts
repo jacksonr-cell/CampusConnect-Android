@@ -107,7 +107,6 @@ Modules: Auth · Users · Social Feed · Kabarak Nest · Events · Clubs · Mark
     .addTag('messaging',     'Direct & group messaging')
     .addTag('notifications', 'In-app notifications')
     .addTag('gamification',  'Points, badges & leaderboard')
-    .addTag('uploads',       'File & image uploads (avatar, posts, properties, events, clubs, marketplace)')
     .addTag('search',        'Global search across all entity types')
     .addTag('reports',       'Content & user reporting')
     .addTag('admin',         '🛡️ Admin dashboard — analytics, user management, moderation')

@@ -21,10 +21,8 @@ class NetworkModule(tokenManager: TokenManager) {
     private val gson = GsonBuilder().setLenient().create()
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        // BODY logging is convenient in development but will log tokens and
-        // personal data to logcat — force it down to headers-only (or off)
-        // before a release build.
-        level = HttpLoggingInterceptor.Level.BODY
+        level = HttpLoggingInterceptor.Level.NONE
+        redactHeader("Authorization")
     }
 
     private val okHttpClient: OkHttpClient = OkHttpClient.Builder()
