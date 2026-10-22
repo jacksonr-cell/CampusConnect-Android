@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { authenticator } from 'otplib';
 import * as qrcode from 'qrcode';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { MfaSecret } from './entities/mfa-secret.entity';
 import { decryptMfaSecret, encryptMfaSecret, isMfaSecretEncrypted } from './mfa-secret-crypto';
