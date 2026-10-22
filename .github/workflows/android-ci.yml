@@ -40,18 +40,22 @@ jobs:
         run: ./gradlew --no-daemon :app:testDebugUnitTest
 
   backend:
-    name: Build and lint production backend
+    name: Build and lint backend copies
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        backend: [backend, backend-v2]
     defaults:
       run:
-        working-directory: backend
+        working-directory: ${{ matrix.backend }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: npm
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: ${{ matrix.backend }}/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm run lint

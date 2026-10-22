@@ -1,0 +1,385 @@
+# CampusConnect Backend API v2
+
+Production-grade NestJS + PostgreSQL backend for the CampusConnect student super-app.
+Kabarak Nest accommodation is fully integrated as a first-class platform module.
+
+---
+
+## Quick Start
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env — set DB credentials, JWT secrets, SMTP
+
+# 3. Start infrastructure (PostgreSQL + Redis)
+docker-compose up postgres redis -d
+
+# 4. Run database migrations
+npm run migration:run
+
+# 5. Start the API
+npm run start:dev
+```
+
+- **API:**        http://localhost:3000/api/v1
+- **Swagger:**    http://localhost:3000/api/docs
+- **WebSocket:**  ws://localhost:3000/ws
+- **Redis UI:**   http://localhost:8081 (run: `docker-compose --profile tools up`)
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | NestJS 10 |
+| Language | TypeScript (strict) |
+| Database | PostgreSQL 16 + TypeORM |
+| Cache / Queues | Redis 7 + BullMQ |
+| Authentication | JWT (access + refresh rotation) |
+| Real-time | Socket.io WebSocket Gateway |
+| Email | Nodemailer + HTML templates |
+| Logging | Winston + daily rotating files |
+| Documentation | Swagger / OpenAPI 3.0 |
+| Testing | Jest + ts-jest |
+| Containerisation | Docker + Docker Compose |
+| CI/CD | GitHub Actions |
+
+---
+
+## Architecture — Round 1 (Infrastructure)
+
+```
+src/
+├── config/
+│   ├── database.config.ts     # PostgreSQL connection
+│   ├── jwt.config.ts          # JWT secrets + expiry
+│   ├── redis.config.ts        # Redis connection
+│   └── mail.config.ts         # SMTP configuration
+│
+├── common/
+│   ├── logger/
+│   │   ├── winston.config.ts  # Winston transports + formats
+│   │   ├── logger.service.ts  # AppLogger (log / error / audit)
+│   │   └── logger.module.ts   # Global Winston module
+│   ├── decorators/            # @CurrentUser, @Roles, @Public
+│   ├── guards/                # JwtAuthGuard, RolesGuard
+│   ├── filters/               # AllExceptionsFilter (TypeORM + HTTP)
+│   ├── interceptors/          # ResponseInterceptor, SerializeInterceptor
+│   ├── middleware/            # LoggerMiddleware (HTTP request logging)
+│   └── dto/                   # PaginationDto + paginate()
+│
+├── database/
+│   ├── data-source.ts                         # TypeORM DataSource for CLI
+│   └── migrations/
+│       └── 1700000000000-InitialSchema.ts     # All 25 tables + 40+ indexes
+│
+└── modules/
+    ├── auth/          # JWT + refresh token rotation, strategies
+    ├── users/         # Profiles, follow graph
+    ├── posts/         # Social feed, comments, reactions
+    ├── accommodation/ # Kabarak Nest — listings, bookings, reviews
+    ├── events/        # Campus events, RSVPs, check-in
+    ├── clubs/         # Student clubs & societies
+    ├── marketplace/   # Buy / sell / trade
+    ├── messaging/     # REST messaging endpoints
+    ├── notifications/ # In-app notification service
+    ├── gamification/  # Points, badges, leaderboard
+    │
+    ├── websocket/     # ★ NEW — Real-time Socket.io gateway
+    │   ├── websocket.gateway.ts   # JWT auth, rooms, events
+    │   ├── websocket.service.ts   # Message persistence
+    │   └── websocket.module.ts
+    │
+    ├── queue/         # ★ NEW — BullMQ background jobs
+    │   ├── constants/queue.constants.ts   # Queue & job name enums
+    │   ├── processors/
+    │   │   ├── email.processor.ts         # Email job worker
+    │   │   ├── notification.processor.ts  # Notification job worker
+    │   │   └── cleanup.processor.ts       # Scheduled cleanup worker
+    │   ├── queue.service.ts               # Public API to enqueue jobs
+    │   └── queue.module.ts
+    │
+    ├── mail/          # ★ NEW — Nodemailer + HTML email templates
+    │   ├── templates/email.templates.ts   # Verification, reset, welcome...
+    │   ├── mail.service.ts
+    │   └── mail.module.ts
+    │
+    └── health/        # ★ NEW — /health + /health/ping endpoints
+        ├── health.controller.ts
+        └── health.module.ts
+```
+
+---
+
+## Database
+
+### Running Migrations
+
+```bash
+# Apply all pending migrations
+npm run migration:run
+
+# Generate a new migration after entity changes
+npm run migration:generate -- --name=AddUserPreferences
+
+# Revert last migration
+npm run migration:revert
+
+# Show migration status
+npm run migration:show
+```
+
+> **Production:** set `TYPEORM_RUN_MIGRATIONS=true` in env to auto-run on startup.
+> Never use `synchronize: true` in production.
+
+### Schema (25 tables)
+
+| Module | Tables |
+|---|---|
+| Auth | `users`, `refresh_tokens` |
+| Social | `user_follows`, `communities`, `posts`, `comments`, `reactions` |
+| Kabarak Nest | `properties`, `property_images`, `property_amenities`, `property_reviews`, `accommodation_bookings`, `saved_listings` |
+| Events | `events`, `event_attendees` |
+| Clubs | `clubs`, `club_members` |
+| Marketplace | `marketplace_listings` |
+| Messaging | `conversations`, `conversation_participants`, `messages` |
+| Platform | `notifications`, `user_points`, `badges`, `user_badges` |
+
+---
+
+## WebSocket Events
+
+Connect to `ws://host/ws` with `Authorization: Bearer {accessToken}` in handshake auth.
+
+| Direction | Event | Payload |
+|---|---|---|
+| Client → Server | `join:conversation` | `{ conversationId }` |
+| Client → Server | `message:send` | `{ conversationId, content, messageType? }` |
+| Client → Server | `typing:start` | `{ conversationId }` |
+| Client → Server | `typing:stop` | `{ conversationId }` |
+| Client → Server | `message:read` | `{ conversationId }` |
+| Client → Server | `message:react` | `{ messageId, conversationId, emoji }` |
+| Server → Client | `message:new` | Full `Message` object |
+| Server → Client | `typing:started` | `{ userId, username, conversationId }` |
+| Server → Client | `typing:stopped` | `{ userId, conversationId }` |
+| Server → Client | `message:read` | `{ userId, conversationId, readAt }` |
+| Server → Client | `user:status` | `{ userId, isOnline, timestamp }` |
+| Server → Client | `notification` | Full `Notification` object |
+
+## Access Rules
+
+- Public posts are visible to authenticated users. Follower-only posts are visible to their author and followers.
+- Community posts are visible to their author and in public communities. Private-community posts remain hidden until community membership is implemented.
+- Conversation rooms and conversation-scoped WebSocket events require the connected user to be a participant.
+
+---
+
+## Background Queues (BullMQ)
+
+| Queue | Jobs | Schedule |
+|---|---|---|
+| `campusconnect:email` | Verification, password reset, welcome, booking updates, event reminders | On demand |
+| `campusconnect:notifications` | In-app, push, bulk | On demand |
+| `campusconnect:media` | Avatar processing, property images | On demand |
+| `campusconnect:cleanup` | Purge expired tokens, old notifications | Daily / Weekly cron |
+
+---
+
+## Email Templates
+
+HTML-branded templates for:
+- Email verification
+- Password reset
+- Welcome email
+- Booking status updates
+- Event reminders
+
+---
+
+## Logging
+
+```
+logs/
+├── combined-YYYY-MM-DD.log   # All log levels (kept 30 days)
+├── error-YYYY-MM-DD.log      # Errors only (kept 14 days)
+└── audit-YYYY-MM-DD.log      # Security events (kept 90 days)
+```
+
+Audit events are written by `AppLogger.audit(event, meta)`.
+
+---
+
+## Testing
+
+```bash
+npm run test        # unit tests
+npm run test:cov    # unit tests + coverage report
+npm run test:e2e    # end-to-end tests
+```
+
+Target: **80%+ line coverage**. Current spec files: `auth.service.spec.ts`, `users.service.spec.ts`.
+
+---
+
+## CI/CD
+
+| Workflow | Trigger | Steps |
+|---|---|---|
+| `ci.yml` | Push / PR to `main`, `develop` | Lint → Type check → Tests → Docker build |
+| `deploy.yml` | Push to `main` or version tag | SSH deploy → Migration run |
+
+---
+
+## Round 2 — Security & Session Hardening
+
+New auth entities, services, and endpoints layered on top of the existing JWT flow.
+
+### New tables
+`email_verification_tokens` · `password_reset_tokens` · `login_history` · `user_sessions` · `mfa_secrets`
+
+### New `/api/v1/auth` endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/verify-email` | Verify email with token from inbox |
+| POST | `/resend-verification` | Resend verification link |
+| POST | `/forgot-password` | Request a password reset email |
+| POST | `/reset-password` | Reset password with emailed token |
+| PATCH | `/change-password` | Change password while logged in |
+| POST | `/mfa/setup` | Start MFA setup — returns QR code |
+| POST | `/mfa/confirm` | Confirm setup with TOTP code — returns backup codes |
+| DELETE | `/mfa` | Disable MFA (requires password) |
+| POST | `/mfa/verify-login` | Complete login after MFA challenge |
+| GET | `/login-history` | View recent login attempts |
+| GET | `/sessions` | List active devices/sessions |
+| DELETE | `/sessions/:id` | Revoke a specific session remotely |
+| POST | `/logout` | Sign out current device only |
+| POST | `/logout-all` | Sign out of all devices |
+
+### How it fits together
+
+**Login flow with MFA:** `POST /login` returns either full tokens, or `{ mfaRequired: true, mfaToken }` if the account has 2FA enabled. The client then calls `POST /mfa/verify-login` with the `mfaToken` and a 6-digit TOTP (or backup code) to receive real tokens. The `mfaToken` is a short-lived (5 min) JWT scoped only to the MFA exchange — it cannot be used as an access token.
+
+**Suspicious login detection:** `LoginHistoryService` flags a successful login as suspicious when it's from a new IP the account has never logged in from before, or when 5+ failed attempts preceded it. Flagged events are written to the audit log (`logs/audit-*.log`).
+
+**Brute-force protection:** after 5 failed password attempts for an email within 15 minutes, further attempts are blocked with `403 Forbidden` until the window resets.
+
+**Session management:** every login creates a `UserSession` row alongside the refresh token, parsed from the user-agent (device/browser/OS). Users can view all active sessions and revoke any one remotely; the current session is protected from self-revocation (use logout instead).
+
+**Password reset security:** reset tokens are SHA-256 hashed before storage, expire in 1 hour, rate-limited to 3 requests/hour per account, and resetting a password immediately revokes every existing refresh token — forcing re-login everywhere.
+
+**MFA:** TOTP via `otplib`, QR code generation via `qrcode`. 10 single-use backup codes (bcrypt-hashed) are issued on setup confirmation and shown to the user once.
+
+---
+
+## Round 3 — File Uploads, Global Search & Admin Dashboard
+
+### File Upload Service
+
+Storage is provider-agnostic via `IStorageProvider` — switch backends with a single env var (`STORAGE_PROVIDER=local|s3|cloudinary`), no code changes required.
+
+| Provider | Use case |
+|---|---|
+| `local` | Development — writes to `./uploads`, served at `/uploads/*` |
+| `s3` | Production — AWS S3 via SDK v3, optional CloudFront CDN URL |
+| `cloudinary` | Alternative managed CDN with built-in transforms |
+
+**Image processing pipeline** (`sharp`): every upload is auto-rotated (EXIF), stripped of metadata, converted to WebP, and resized into multiple named variants in parallel:
+
+| Upload type | Variants generated |
+|---|---|
+| Avatar | `lg` 400×400 · `md` 150×150 · `sm` 60×60 |
+| Post media | `full` 1200w · `thumb` 400w |
+| Property image | `full` 1200w · `card` 600w · `thumb` 300w |
+| Event banner | `banner` 1200×630 (og:image ratio) · `thumb` 400×210 |
+| Club logo/banner | `logo` 300×300 · `banner` 1200w |
+| Marketplace | `full` 1000w · `thumb` 300w |
+
+### `/api/v1/uploads` endpoints
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/avatar` | Any authenticated user |
+| POST | `/posts/media` | Any authenticated user |
+| POST | `/properties/:id/images` | Landlord / Admin only |
+| POST | `/events/:id/banner` | Any authenticated user |
+| POST | `/clubs/:id/logo` \| `/banner` | Any authenticated user |
+| POST | `/marketplace/:id/images` | Any authenticated user |
+
+All accept `multipart/form-data` with a `file` field, max 10MB, JPEG/PNG/WebP only.
+
+---
+
+### Global Search
+
+`GET /api/v1/search?q=kabarak&entity=all` searches across six entity types **in parallel** using PostgreSQL trigram (`pg_trgm`) matching — the same indexes created in Round 1's initial migration.
+
+| `entity` value | Searches |
+|---|---|
+| `all` *(default)* | Everything below, combined |
+| `users` | Username, first/last name |
+| `posts` | Post content (public posts only) |
+| `events` | Title, description |
+| `clubs` | Name, description |
+| `accommodation` | Property title, city, neighborhood, description |
+| `marketplace` | Listing title, description |
+
+Each result returns a normalised `{ entity, id, title, subtitle, imageUrl, meta }` shape regardless of source table, so the frontend can render a single unified results list. Response includes `took` (ms) for latency monitoring.
+
+---
+
+### Content Reporting & Moderation
+
+New `reports` table — students can report posts, comments, users, marketplace listings, properties, events, or messages.
+
+| Method | Endpoint | Access |
+|---|---|---|
+| POST | `/api/v1/reports` | Any authenticated user |
+| GET | `/api/v1/reports/pending` | Admin only |
+| PATCH | `/api/v1/reports/:id/review` | Admin only — mark `actioned` or `dismissed` |
+
+Duplicate reports (same user, same target, still pending) are rejected with `409 Conflict`.
+
+---
+
+### Admin Dashboard API
+
+All endpoints under `/api/v1/admin`, gated by `@Roles(UserRole.ADMIN)`.
+
+**Analytics**
+- `GET /admin/dashboard` — full platform overview: user counts (total/active today/week/month/new this month + retention %), content stats, Kabarak Nest occupancy rate, event/club/marketplace counts, pending report count
+- `GET /admin/dashboard/growth?days=30` — daily new-user signups for a growth chart
+- `GET /admin/dashboard/engagement` — total reactions, comments, property inquiries platform-wide
+
+**User management**
+- `GET /admin/users` — paginated, filterable by search/role/active status
+- `GET /admin/users/:id` — full user detail
+- `PATCH /admin/users/:id/active` — activate/deactivate an account
+- `PATCH /admin/users/:id/role` — change a user's role
+- `PATCH /admin/users/:id/verify` — grant/revoke verification badge
+- `DELETE /admin/users/:id` — soft-delete (anonymises email/username, preserves referential integrity)
+
+**Moderation**
+- `GET /admin/reports` — pending reports queue
+
+Every admin action that mutates state is written to the audit log via `AppLogger.audit()`.
+
+> **Realistic data policy honoured:** all stats are computed live from actual table counts — a fresh deployment shows real zeros, not placeholder numbers.
+
+---
+
+## Roadmap
+
+- [x] **Round 1** — WebSocket gateway, BullMQ queues, Winston logging, health checks, TypeORM migrations, CI/CD *(complete)*
+- [x] **Round 2** — Email verification, password reset, login history + suspicious login detection, device sessions, MFA *(complete)*
+- [x] **Round 3** — File upload service (local/S3/Cloudinary + sharp processing), global search, content reporting, admin dashboard API *(complete)*
+- [ ] **Round 4** — Full test coverage (90%+), performance optimisation (N+1 queries, Redis caching), analytics deep-dive
+
+---
+
+CampusConnect © 2025 — Private & Confidential

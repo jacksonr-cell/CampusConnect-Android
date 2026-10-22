@@ -400,6 +400,6 @@ Every admin action that mutates state is written to the audit log via `AppLogger
 
 # Repository deployment source
 
-The production deployment blueprint builds this backend directory from the `CampusConnect-Android` repository. Treat `backend/` here as the canonical deployable copy: its build, lint, production environment validation, and MFA-secret encryption are covered by repository checks. Any changes made in a separate standalone `campusconnect-backend-v2` export must be brought into this directory before deploying; that export is not part of this Git repository.
+The production deployment blueprint builds this backend directory from the `CampusConnect-Android` repository. Treat `backend/` here as the canonical deployable copy. The separate `backend-v2/` code line is also tracked and CI-checked, including production environment validation and MFA-secret encryption. The Render blueprint still deploys `backend/`; changes made only in `backend-v2/` do not change production until they are ported to `backend/`.
 
 CampusConnect © 2025 — Private & Confidential
