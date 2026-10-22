@@ -7,6 +7,7 @@ import * as qrcode from 'qrcode';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { MfaSecret } from './entities/mfa-secret.entity';
+import { decryptMfaSecret, encryptMfaSecret, isMfaSecretEncrypted } from './mfa-secret-crypto';
 
 const BACKUP_CODE_COUNT = 10;
 
@@ -33,13 +34,18 @@ export class MfaService {
     const qrCodeDataUrl = await qrcode.toDataURL(otpauthUrl);
 
     if (existing) {
-      existing.secret = secret;
+      existing.secret = encryptMfaSecret(secret, this.configService.get<string>('MFA_ENCRYPTION_KEY'));
       existing.isEnabled = false;
       existing.verifiedAt = null;
       await this.mfaRepository.save(existing);
     } else {
       await this.mfaRepository.save(
-        this.mfaRepository.create({ userId, secret, isEnabled: false, backupCodes: [] }),
+        this.mfaRepository.create({
+          userId,
+          secret: encryptMfaSecret(secret, this.configService.get<string>('MFA_ENCRYPTION_KEY')),
+          isEnabled: false,
+          backupCodes: [],
+        }),
       );
     }
 
@@ -51,7 +57,8 @@ export class MfaService {
     const record = await this.mfaRepository.findOne({ where: { userId } });
     if (!record) throw new BadRequestException('MFA setup was not initiated');
 
-    const valid = authenticator.verify({ token: code, secret: record.secret });
+    const secret = decryptMfaSecret(record.secret, this.configService.get<string>('MFA_ENCRYPTION_KEY'));
+    const valid = authenticator.verify({ token: code, secret });
     if (!valid) throw new BadRequestException('Invalid verification code');
 
     const backupCodes = this.generateBackupCodes();
@@ -60,6 +67,9 @@ export class MfaService {
     record.isEnabled   = true;
     record.verifiedAt  = new Date();
     record.backupCodes = hashedCodes;
+    if (!isMfaSecretEncrypted(record.secret)) {
+      record.secret = encryptMfaSecret(secret, this.configService.get<string>('MFA_ENCRYPTION_KEY'));
+    }
     await this.mfaRepository.save(record);
 
     return { backupCodes }; // plaintext shown once — user must save them
@@ -80,7 +90,12 @@ export class MfaService {
     if (!record?.isEnabled) return false;
 
     // Try TOTP first
-    if (authenticator.verify({ token: code, secret: record.secret })) {
+    const secret = decryptMfaSecret(record.secret, this.configService.get<string>('MFA_ENCRYPTION_KEY'));
+    if (authenticator.verify({ token: code, secret })) {
+      if (!isMfaSecretEncrypted(record.secret)) {
+        record.secret = encryptMfaSecret(secret, this.configService.get<string>('MFA_ENCRYPTION_KEY'));
+        await this.mfaRepository.save(record);
+      }
       return true;
     }
 

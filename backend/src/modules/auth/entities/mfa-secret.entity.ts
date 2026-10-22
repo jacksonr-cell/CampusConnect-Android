@@ -14,7 +14,7 @@ export class MfaSecret {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  /** TOTP secret, encrypted at rest in production via app-level crypto. */
+  /** AES-256-GCM encrypted in production. Keep MFA_ENCRYPTION_KEY stable for the lifetime of these records. */
   @Column({ name: 'secret', length: 255 })
   @Exclude()
   secret: string;

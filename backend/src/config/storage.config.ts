@@ -10,10 +10,11 @@ export default registerAs('storage', () => ({
 
   s3: {
     bucket         : process.env.AWS_S3_BUCKET,
-    region         : process.env.AWS_S3_REGION || 'af-south-1',
+    region         : process.env.AWS_S3_REGION || 'auto',
+    endpoint       : process.env.AWS_S3_ENDPOINT,
     accessKeyId    : process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    cdnBaseUrl     : process.env.AWS_S3_CDN_URL, // optional CloudFront domain
+    cdnBaseUrl     : process.env.AWS_S3_CDN_URL,
   },
 
   cloudinary: {

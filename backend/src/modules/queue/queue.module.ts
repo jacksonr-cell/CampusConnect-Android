@@ -20,8 +20,10 @@ import { Notification } from '../notifications/entities/notification.entity';
         connection: {
           host    : configService.get<string>('redis.host', 'localhost'),
           port    : configService.get<number>('redis.port', 6379),
+          username: configService.get<string>('redis.username'),
           password: configService.get<string>('redis.password'),
           db      : configService.get<number>('redis.db', 0),
+          tls     : configService.get('redis.tls'),
         },
         defaultJobOptions: {
           attempts         : 3,

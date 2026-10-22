@@ -119,8 +119,8 @@ Modules: Auth · Users · Social Feed · Kabarak Nest · Events · Clubs · Mark
     customSiteTitle  : 'CampusConnect API v2',
   });
 
-  const port = configService.get<number>('PORT', 3000);
-  await app.listen(port);
+  const port = Number(configService.get<string>('PORT')) || 3000;
+  await app.listen(port, '0.0.0.0');
 
   const logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
   logger.log(`\n🚀  CampusConnect API  →  http://localhost:${port}/api/v1`, 'Bootstrap');

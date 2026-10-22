@@ -4,6 +4,22 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+fun String.asBuildConfigString(): String = "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
+val configuredApiBaseUrl = providers.gradleProperty("campusConnectApiBaseUrl")
+    .orElse(providers.environmentVariable("CAMPUSCONNECT_API_BASE_URL"))
+    .orNull
+val debugApiBaseUrl = configuredApiBaseUrl ?: "http://10.0.2.2:3000/api/v1/"
+val releaseApiBaseUrl = configuredApiBaseUrl ?: "https://api.example.invalid/api/v1/"
+
+fun validateApiBaseUrl(value: String, requireHttps: Boolean) {
+    val validScheme = if (requireHttps) value.startsWith("https://") else
+        (value.startsWith("https://") || value.startsWith("http://"))
+    if (!validScheme || !value.endsWith("/api/v1/")) {
+        throw GradleException("API URL must use ${if (requireHttps) "HTTPS" else "HTTP or HTTPS"} and end with /api/v1/.")
+    }
+}
+
 android {
     namespace   = "com.campusconnect.app"
     compileSdk  = 35
@@ -17,9 +33,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_BASE_URL", debugApiBaseUrl.asBuildConfigString())
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("String", "API_BASE_URL", releaseApiBaseUrl.asBuildConfigString())
         }
     }
     compileOptions {
@@ -27,7 +47,20 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
-    buildFeatures { compose = true }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+}
+
+tasks.configureEach {
+    if (name == "preReleaseBuild") {
+        doFirst {
+            val apiUrl = configuredApiBaseUrl
+                ?: throw GradleException("Set CAMPUSCONNECT_API_BASE_URL (or -PcampusConnectApiBaseUrl) before building a release.")
+            validateApiBaseUrl(apiUrl, requireHttps = true)
+        }
+    }
 }
 
 dependencies {

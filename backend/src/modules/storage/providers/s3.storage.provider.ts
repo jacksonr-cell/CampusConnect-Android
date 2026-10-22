@@ -13,10 +13,12 @@ export class S3StorageProvider implements IStorageProvider {
   private readonly bucket: string;
   private readonly cdnBaseUrl?: string;
   private readonly region: string;
+  private readonly endpoint?: string;
 
   constructor(private readonly configService: ConfigService) {
     this.bucket     = this.configService.get<string>('storage.s3.bucket');
     this.region     = this.configService.get<string>('storage.s3.region');
+    this.endpoint   = this.configService.get<string>('storage.s3.endpoint');
     this.cdnBaseUrl = this.configService.get<string>('storage.s3.cdnBaseUrl');
 
     if (!this.bucket) {
@@ -25,6 +27,8 @@ export class S3StorageProvider implements IStorageProvider {
 
     this.client = new S3Client({
       region     : this.region,
+      endpoint   : this.endpoint,
+      forcePathStyle: Boolean(this.endpoint),
       credentials: {
         accessKeyId    : this.configService.get<string>('storage.s3.accessKeyId'),
         secretAccessKey: this.configService.get<string>('storage.s3.secretAccessKey'),
@@ -53,7 +57,7 @@ export class S3StorageProvider implements IStorageProvider {
     }
 
     const url = this.cdnBaseUrl
-      ? `${this.cdnBaseUrl}/${key}`
+      ? `${this.cdnBaseUrl.replace(/\/$/, '')}/${key}`
       : `https://${this.bucket}.s3.${this.region}.amazonaws.com/${key}`;
 
     return { url, key };

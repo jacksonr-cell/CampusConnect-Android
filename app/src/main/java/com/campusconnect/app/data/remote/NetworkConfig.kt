@@ -1,5 +1,7 @@
 package com.campusconnect.app.data.remote
 
+import com.campusconnect.app.BuildConfig
+
 /**
  * Central place to point the app at a backend and to toggle security
  * features that depend on infrastructure not yet in place.
@@ -15,9 +17,16 @@ object NetworkConfig {
      * HTTP is only permitted for the hosts listed in
      * res/xml/network_security_config.xml, and only in this dev config.
      */
-    const val BASE_URL = "http://10.0.2.2:3000/api/v1/"
+    const val BASE_URL = BuildConfig.API_BASE_URL
 
-    const val WEBSOCKET_URL = "http://10.0.2.2:3000/ws"
+    val WEBSOCKET_URL: String
+        get() = BASE_URL.removeSuffix("api/v1/").let { apiOrigin ->
+            val socketOrigin = when {
+                apiOrigin.startsWith("https://") -> apiOrigin.replaceFirst("https://", "wss://")
+                else -> apiOrigin.replaceFirst("http://", "ws://")
+            }
+            "${socketOrigin.trimEnd('/')}/ws"
+        }
 
     /**
      * Certificate pinning (OkHttp CertificatePinner) — OFF by default because

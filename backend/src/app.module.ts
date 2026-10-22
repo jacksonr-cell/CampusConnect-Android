@@ -10,6 +10,7 @@ import jwtConfig      from './config/jwt.config';
 import redisConfig    from './config/redis.config';
 import mailConfig     from './config/mail.config';
 import storageConfig  from './config/storage.config';
+import { validateEnvironment } from './config/env.validation';
 
 // ── Infrastructure
 import { LoggerModule }     from './common/logger/logger.module';
@@ -45,6 +46,7 @@ import { AdminModule }   from './modules/admin/admin.module';
     ConfigModule.forRoot({
       isGlobal  : true,
       load      : [databaseConfig, jwtConfig, redisConfig, mailConfig, storageConfig],
+      validate  : validateEnvironment,
       envFilePath: ['.env.local', '.env'],
     }),
 
@@ -53,6 +55,7 @@ import { AdminModule }   from './modules/admin/admin.module';
       imports    : [ConfigModule],
       useFactory : (cfg: ConfigService) => ({
         type         : 'postgres',
+        url          : cfg.get<string>('database.url') || undefined,
         host         : cfg.get<string>('database.host'),
         port         : cfg.get<number>('database.port'),
         username     : cfg.get<string>('database.username'),

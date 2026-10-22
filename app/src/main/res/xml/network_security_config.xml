@@ -1,20 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  Allows cleartext (plain HTTP) traffic ONLY to known local-development hosts.
-  The rest of the app still enforces HTTPS (see android:usesCleartextTraffic="false"
-  in AndroidManifest.xml) — this is a targeted exception, not a global bypass.
-
-  10.0.2.2   → Android emulator's alias for the host machine's localhost.
-  localhost  → covers a device/emulator running the backend on itself.
-
-  If testing on a PHYSICAL device against a backend on your dev machine,
-  add your machine's LAN IP here too, e.g. <domain>192.168.1.42</domain>.
-  Remove this file (and the manifest reference to it) before shipping —
-  production must talk to the API over HTTPS only.
--->
+﻿<?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">10.0.2.2</domain>
-        <domain includeSubdomains="false">localhost</domain>
-    </domain-config>
+    <base-config cleartextTrafficPermitted="false" />
 </network-security-config>

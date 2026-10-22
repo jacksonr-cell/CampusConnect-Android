@@ -124,7 +124,16 @@ app/src/main/java/com/campusconnect/app/
 2. Select a device — emulator (Pixel 7 API 34) or physical device
 3. Click **Run ▶**
 
-The feed, post creation, comments, authentication, events, and accommodation screens use the backend API. The default development URL targets a local backend from the Android emulator (`10.0.2.2:3000`). Update `NetworkConfig.BASE_URL` for a physical device or deployed backend.
+The feed, post creation, comments, authentication, events, and accommodation screens use the backend API. Debug builds default to the local emulator backend (`10.0.2.2:3000`). The API URL can be overridden with `CAMPUSCONNECT_API_BASE_URL` or `-PcampusConnectApiBaseUrl`.
+
+Release builds require `CAMPUSCONNECT_API_BASE_URL` to be set to an HTTPS URL ending in `/api/v1/`. For example, in PowerShell:
+
+```powershell
+$env:CAMPUSCONNECT_API_BASE_URL = "https://api.your-domain.example/api/v1/"
+.\gradlew.bat :app:bundleRelease
+```
+
+The WebSocket URL is derived from the same API host and uses `wss://` automatically. Cleartext HTTP access is limited to local hosts in debug builds; release builds reject HTTP API URLs.
 
 ---
 
