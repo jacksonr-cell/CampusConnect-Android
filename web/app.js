@@ -1,5 +1,5 @@
 /* CampusConnect web client. Configure API_BASE_URL before deploying a connected build. */
-const CONFIG = { API_BASE_URL: window.CAMPUSCONNECT_API_BASE_URL || localStorage.getItem('cc-api-url') || 'http://localhost:3000/api/v1' };
+const CONFIG = { API_BASE_URL: window.CAMPUSCONNECT_API_BASE_URL || localStorage.getItem('cc-api-url') || 'https://campusconnect-demo-api.onrender.com/api/v1' };
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const state = { token: localStorage.getItem('cc-access-token') || '', refresh: localStorage.getItem('cc-refresh-token') || '', user: null, posts: [], events: [], filter: 'all', authMode: 'login', toastTimer: null };
