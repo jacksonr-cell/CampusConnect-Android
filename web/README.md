@@ -4,13 +4,13 @@ A responsive, static website companion to the CampusConnect Android app. It uses
 
 ## Run locally
 
-From this directory, start any static file server. For example:
+From this directory, start the included preview server:
 
 ```powershell
-py -m http.server 8080
+node server.js
 ```
 
-Open <http://localhost:8080>. Without a configured API, the site opens in preview mode with sample campus posts and events. Creating posts in preview mode only changes the current page.
+Open <http://localhost:8080>. Alternatively, use `python -m http.server 8080`. Without a configured API, the site opens in preview mode with sample campus posts and events. Creating posts in preview mode only changes the current page.
 
 ## Connect the API
 
