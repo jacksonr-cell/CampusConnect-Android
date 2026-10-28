@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('mail', () => ({
+  enabled : process.env.EMAIL_ENABLED !== 'false',
   host    : process.env.SMTP_HOST     || 'smtp.gmail.com',
   port    : parseInt(process.env.SMTP_PORT, 10) || 587,
   secure  : process.env.SMTP_SECURE   === 'true',

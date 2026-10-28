@@ -35,7 +35,7 @@ COPY --from=deps   /prod_modules      ./node_modules
 COPY package*.json ./
 
 # Create log directory
-RUN mkdir -p logs && chown -R nestjs:nodejs logs
+RUN mkdir -p logs uploads && chown -R nestjs:nodejs logs uploads
 
 USER nestjs
 

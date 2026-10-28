@@ -88,6 +88,10 @@ export class MailService {
   }
 
   private async send(options: { to: string; subject: string; html: string }): Promise<void> {
+    if (!this.configService.get<boolean>('mail.enabled', true)) {
+      this.logger.warn(`Email disabled for this deployment; skipped: ${options.subject}`);
+      return;
+    }
     try {
       await this.transporter.sendMail({
         from   : this.from,
@@ -102,6 +106,7 @@ export class MailService {
 
   /** Verify SMTP connection — used in health checks. */
   async verifyConnection(): Promise<boolean> {
+    if (!this.configService.get<boolean>('mail.enabled', true)) return false;
     try {
       await this.transporter.verify();
       return true;

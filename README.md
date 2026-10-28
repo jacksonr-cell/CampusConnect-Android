@@ -1,5 +1,9 @@
 # CampusConnect-Android
 
+## Temporary free Render demo
+
+`render.free.yaml` describes an optional no-cost demo stack for trying the API. It uses Render Free instances: the API sleeps after 15 minutes of inactivity, the Postgres database expires after 30 days, Key Value has limited non-persistent storage, and uploaded files live on an ephemeral filesystem. Email delivery is disabled in this mode. Do not store information you need to keep; use the paid production `render.yaml` or migrate the database and object storage before relying on user data.
+
 Jetpack Compose Android app for the CampusConnect student super-platform.
 
 This repository contains the Android app and the CampusConnect API in `backend/`.
