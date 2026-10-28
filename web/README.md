@@ -24,7 +24,9 @@ The API must allow the website origin in its `CORS_ORIGINS` setting. For local d
 
 ## Deploy
 
-Upload the contents of this `web/` folder to a static hosting service such as Cloudflare Pages, Netlify, or GitHub Pages. Set the API base URL in `app.js` and allow the final site origin in the backend CORS configuration. This folder has no build step or npm dependencies. The repository itself remains private; hosting a site is a separate decision from changing GitHub repository visibility.
+This folder includes a Render static-site blueprint at [`render.yaml`](render.yaml). When creating a Render Blueprint for this repository, select `web/render.yaml` as the Blueprint file. The repository-root `render.yaml` describes the API, database, and cache, including paid services; do not select it when you only want to host the website.
+
+The static site serves in preview mode until an API URL is configured. Set the API base URL in `app.js` and allow the final site origin in the backend `CORS_ORIGINS` configuration. A deployed static website is internet-accessible even while its GitHub repository stays private. This folder has no npm dependencies.
 
 ## Current scope
 
