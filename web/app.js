@@ -63,9 +63,11 @@ function renderPosts() {
 }
 function renderEvents(events = state.events) {
   $('#events-list').innerHTML = events.slice(0, 3).map((event, index) => {
-    const date = new Date(event.startsAt || event.startDate || event.date || Date.now() + (index + 2) * 86400000);
-    const day = event.dateLabel || String(date.getDate()).padStart(2, '0');
-    const month = event.monthLabel || date.toLocaleString('en', { month: 'short' }).toUpperCase();
+    const dateOnly = /^\d{1,2}$/.test(String(event.date || ''));
+    const sourceDate = event.startTime || event.startsAt || event.startDate || (!dateOnly ? event.date : null) || Date.now() + (index + 2) * 86400000;
+    const date = new Date(sourceDate);
+    const day = event.dateLabel || (dateOnly ? String(event.date).padStart(2, '0') : String(date.getDate()).padStart(2, '0'));
+    const month = event.monthLabel || event.month || date.toLocaleString('en', { month: 'short' }).toUpperCase();
     return `<div class="event-row"><span class="event-date"><strong>${safe(day)}</strong><small>${safe(month)}</small></span><span class="event-copy"><strong>${safe(event.title || event.name || 'Campus gathering')}</strong><small class="event-type"><i></i>${safe(event.category || event.type || event.location || 'Campus event')}</small></span></div>`;
   }).join('') || '<p class="empty-events">New campus moments are on their way.</p>';
 }
