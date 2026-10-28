@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0b">
+  <meta name="description" content="Your campus, closer. Meet people, share what matters, and find your next campus moment with CampusConnect.">
+  <title>CampusConnect — your campus, closer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#home" aria-label="CampusConnect home"><span class="brand-mark">c<span>.</span></span><span>campus<span class="brand-light">connect</span></span></a>
+      <div class="campus-switch"><span class="campus-icon">✳</span><span><small>YOUR CAMPUS</small><strong>Kabarak University</strong></span><span class="chevron">⌄</span></div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <p class="nav-label">MENU</p>
+        <a class="nav-item active" href="#home" data-view="home"><span class="nav-icon">⌂</span>Home</a>
+        <a class="nav-item" href="#discover" data-view="discover"><span class="nav-icon">⌕</span>Discover</a>
+        <a class="nav-item" href="#events" data-view="events"><span class="nav-icon">▦</span>Campus events<span class="nav-count">3</span></a>
+        <a class="nav-item" href="#messages" data-view="messages"><span class="nav-icon">▤</span>Messages<span class="unread-dot"></span></a>
+        <a class="nav-item" href="#saved" data-view="saved"><span class="nav-icon">♧</span>Saved</a>
+        <p class="nav-label community-label">YOUR CIRCLES <button class="add-circle" aria-label="Add a circle">+</button></p>
+        <a class="nav-item circle-item" href="#circle-design"><i class="circle-dot dot-lilac"></i>Design society</a>
+        <a class="nav-item circle-item" href="#circle-tech"><i class="circle-dot dot-mint"></i>Tech & innovation</a>
+        <a class="nav-item circle-item" href="#circle-nature"><i class="circle-dot dot-orange"></i>Nature club</a>
+      </nav>
+      <div class="sidebar-bottom"><div class="upgrade-card"><div class="sparkle">✦</div><strong>Your campus, one place.</strong><p>Meet your people and make more of uni.</p><button id="explore-button">Explore CampusConnect <span>↗</span></button></div><button class="profile-mini" id="profile-button"><span class="avatar avatar-me">JM</span><span class="profile-copy"><strong>Jordan Mwangi</strong><small>Computer Science · Year 3</small></span><span class="more">···</span></button></div>
+    </aside>
+
+    <main class="main-content" id="home">
+      <header class="topbar"><div class="mobile-brand"><span class="brand-mark">c<span>.</span></span><strong>campusconnect</strong></div><label class="search-wrap"><span>⌕</span><input id="search-input" type="search" placeholder="Search people, events, circles..." aria-label="Search CampusConnect"><kbd>⌘ K</kbd></label><div class="top-actions"><button class="icon-button" aria-label="Help">?</button><button class="icon-button notification-button" id="notifications-button" aria-label="Notifications">♧<i></i></button><button class="avatar avatar-me top-avatar" id="top-profile" aria-label="Open profile">JM</button></div></header>
+      <div class="content-grid"><section class="feed-column">
+        <div class="welcome-row"><div><div class="eyebrow"><span class="live-dot"></span> TUESDAY, OCTOBER 28</div><h1>Your campus,<br class="mobile-break"> <span>closer.</span></h1><p class="welcome-subtitle">Good morning, Jordan. Here’s what’s happening around you.</p></div><button class="campus-pill"><span>✳</span> Kabarak University <span class="chevron">⌄</span></button></div>
+
+        <section class="stories-panel" aria-label="Campus stories"><div class="section-heading"><div><span class="section-kicker">YOUR COMMUNITY</span><h2>Little campus moments</h2></div><button class="text-link" id="all-stories">See all <span>→</span></button></div><div class="stories-row" id="stories-row"><button class="story add-story" id="add-story"><span class="story-ring add-ring"><span class="story-photo add-photo">+</span></span><span class="story-name">Your story</span></button><button class="story"><span class="story-ring ring-violet"><span class="story-photo photo-one">AM</span><i></i></span><span class="story-name">Amina</span></button><button class="story"><span class="story-ring ring-peach"><span class="story-photo photo-two">BK</span><i></i></span><span class="story-name">Brian</span></button><button class="story"><span class="story-ring ring-blue"><span class="story-photo photo-three">NW</span><i></i></span><span class="story-name">Njeri</span></button><button class="story"><span class="story-ring ring-gold"><span class="story-photo photo-four">TO</span><i></i></span><span class="story-name">Tobias</span></button><button class="story"><span class="story-ring ring-mint"><span class="story-photo photo-five">LW</span><i></i></span><span class="story-name">Linet</span></button><button class="story"><span class="story-ring ring-lilac"><span class="story-photo photo-six">FK</span><i></i></span><span class="story-name">Faith</span></button><button class="story"><span class="story-ring ring-coral"><span class="story-photo photo-seven">DO</span><i></i></span><span class="story-name">David</span></button></div></section>
+
+        <div class="feed-toolbar"><div class="section-heading feed-heading"><div><span class="section-kicker">THE LATEST</span><h2>Your community feed <span class="online-count"><i></i> 28 online</span></h2></div></div><div class="feed-tabs" role="tablist" aria-label="Feed filter"><button class="feed-tab selected" data-filter="all" role="tab" aria-selected="true">For you</button><button class="feed-tab" data-filter="following" role="tab" aria-selected="false">Following</button><button class="feed-tab" data-filter="circles" role="tab" aria-selected="false">My circles</button></div></div>
+        <form class="composer" id="composer"><button class="avatar avatar-me" type="button" aria-label="Your profile">JM</button><button class="composer-prompt" type="button" id="composer-prompt">What’s happening on campus, Jordan?</button><div class="composer-actions"><button type="button" class="composer-tool" id="add-photo-button"><span>▧</span><span class="tool-label">Photo</span></button><button type="button" class="composer-tool" id="add-event-button"><span>▦</span><span class="tool-label">Event</span></button><button type="button" class="post-button" id="open-composer">Post <span>↗</span></button></div></form>
+        <div class="posts" id="posts-container" aria-live="polite"></div>
+        <button class="load-more" id="load-more">You’re all caught up <span>✦</span></button>
+      </section>
+
+      <aside class="right-rail"><section class="rail-card campus-card"><div class="card-topline"><span class="section-kicker">CAMPUS PULSE</span><span class="pulse-status"><i></i> LIVE</span></div><h3>A little more connected.</h3><p>Your campus is full of people, ideas, and moments. Here’s a glimpse of what’s going on.</p><div class="pulse-stats"><div><strong>1,284</strong><span>students here</span></div><div><strong>36</strong><span>things happening</span></div></div><button class="card-cta" id="campus-pulse-link">Explore your campus <span>↗</span></button></section>
+        <section class="rail-card events-card" id="events"><div class="section-heading compact-heading"><div><span class="section-kicker">SAVE YOUR SPOT</span><h2>Coming up <span class="tiny-star">✳</span></h2></div><button class="icon-link" id="events-more" aria-label="See all events">→</button></div><div id="events-list"></div><button class="see-events" id="see-events">All campus events <span>→</span></button></section>
+        <section class="rail-card circles-card"><div class="section-heading compact-heading"><div><span class="section-kicker">FIND YOUR PEOPLE</span><h2>Circles to explore</h2></div><button class="icon-link" id="circles-more" aria-label="Explore circles">→</button></div><div class="circle-suggestion"><span class="circle-art art-design">✳</span><span class="circle-copy"><strong>Creative minds</strong><small>Art, design & ideas</small></span><button class="join-button" data-join="creative">+</button></div><div class="circle-suggestion"><span class="circle-art art-run">↗</span><span class="circle-copy"><strong>Early birds run club</strong><small>Fresh air, good company</small></span><button class="join-button" data-join="running">+</button></div><div class="circle-suggestion"><span class="circle-art art-book">▤</span><span class="circle-copy"><strong>Books & brews</strong><small>Quiet reads, loud opinions</small></span><button class="join-button" data-join="books">+</button></div><button class="see-events" id="see-circles">Find your circle <span>→</span></button></section>
+        <footer class="rail-footer"><span>Made for campus life <b>✳</b></span><div><a href="#about">About</a><a href="#guidelines">Guidelines</a><a href="#privacy">Privacy</a></div><small>© 2026 CampusConnect</small></footer></aside>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation"><a class="mobile-nav-item active" href="#home" data-view="home"><span>⌂</span><small>Home</small></a><a class="mobile-nav-item" href="#discover" data-view="discover"><span>⌕</span><small>Discover</small></a><button class="mobile-create" id="mobile-create" aria-label="Create a post">+</button><a class="mobile-nav-item" href="#events" data-view="events"><span>▦</span><small>Events</small></a><a class="mobile-nav-item" href="#messages" data-view="messages"><span>▤</span><small>Inbox</small></a></nav>
+
+  <dialog id="post-dialog" class="modal"><form method="dialog" class="modal-close-form"><button class="modal-x" aria-label="Close">×</button></form><div class="modal-heading"><span class="section-kicker">A NOTE TO YOUR COMMUNITY</span><h2>Share a little something.</h2><p>Good things happen when we share them.</p></div><form id="post-form"><label class="sr-only" for="post-content">Your post</label><textarea id="post-content" maxlength="5000" placeholder="What’s on your mind, Jordan?" required></textarea><div class="modal-footer"><span id="char-count">0 / 5000</span><button type="submit" class="post-button">Share with campus <span>↗</span></button></div></form></dialog>
+
+  <dialog id="auth-dialog" class="modal auth-modal"><form method="dialog" class="modal-close-form"><button class="modal-x" aria-label="Close">×</button></form><div class="modal-heading"><span class="section-kicker">WELCOME TO YOUR CAMPUS</span><h2 id="auth-title">Come on in.</h2><p id="auth-description">Sign in to make your campus feel a little smaller.</p></div><form id="auth-form"><label>Email address<input name="email" type="email" autocomplete="email" placeholder="you@campus.edu" required></label><label id="username-field" hidden>Choose a username<input name="username" autocomplete="username" minlength="3" placeholder="jordanmwangi"></label><label id="first-name-field" hidden>First name<input name="firstName" autocomplete="given-name" placeholder="Jordan"></label><label id="last-name-field" hidden>Last name<input name="lastName" autocomplete="family-name" placeholder="Mwangi"></label><label>Password<input name="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></label><button class="post-button auth-submit" type="submit">Sign in <span>↗</span></button></form><button class="auth-switch" id="auth-switch">New here? Create an account</button></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

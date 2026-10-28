@@ -153,3 +153,7 @@ The WebSocket URL is derived from the same API host and uses `wss://` automatica
 ---
 
 CampusConnect © 2025 — Private & Confidential
+
+## CampusConnect Web
+
+A responsive website companion is in [`web/`](web/README.md). To preview it locally, run `py -m http.server 8080` from that directory and open `http://localhost:8080`. It runs as a static site with no build step; connect the API by setting its `/api/v1` base URL in `web/app.js` and allowing the site origin in the backend `CORS_ORIGINS` setting. See the web README for deployment and current feature coverage.
