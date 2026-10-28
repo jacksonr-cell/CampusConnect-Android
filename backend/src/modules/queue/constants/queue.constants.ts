@@ -1,8 +1,8 @@
 export const QUEUE_NAMES = {
-  EMAIL        : 'campusconnect:email',
-  NOTIFICATIONS: 'campusconnect:notifications',
-  MEDIA        : 'campusconnect:media',
-  CLEANUP      : 'campusconnect:cleanup',
+  EMAIL        : 'campusconnect-email',
+  NOTIFICATIONS: 'campusconnect-notifications',
+  MEDIA        : 'campusconnect-media',
+  CLEANUP      : 'campusconnect-cleanup',
 } as const;
 
 export const JOB_NAMES = {
