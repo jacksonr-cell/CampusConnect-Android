@@ -211,7 +211,7 @@ export class InitialSchema1700000000000 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX "idx_props_type"      ON "properties" ("property_type")`);
     await queryRunner.query(`CREATE INDEX "idx_props_price"     ON "properties" ("price_per_month")`);
     await queryRunner.query(`CREATE INDEX "idx_props_location"  ON "properties" USING GIST (
-      point(longitude::float8, latitude::float8) gist_point_ops
+      point(longitude::float8, latitude::float8) point_ops
     ) WHERE latitude IS NOT NULL AND longitude IS NOT NULL`);
 
     // ── property_images ──────────────────────────────────────────────────────
