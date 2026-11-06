@@ -16,16 +16,33 @@ const demoEvents = [
 
 function initials(user = {}) { return `${(user.firstName || user.username || 'C')[0]}${(user.lastName || '')[0] || ''}`.toUpperCase(); }
 function fullName(user = {}) { return [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username || 'Campus friend'; }
-function safe(value = '') { const el = document.createElement('span'); el.textContent = String(value); return el.innerHTML; }
+// Escapes every character that matters inside both element text and quoted attributes.
+function safe(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+// Only allow http(s) URLs in src/background attributes; anything else yields an empty string.
+function safeUrl(value) {
+  const text = String(value || '').trim();
+  return /^https?:\/\//i.test(text) ? safe(text) : '';
+}
 function timeAgo(value) { const minutes = Math.max(1, Math.floor((Date.now() - new Date(value).getTime()) / 60000)); if (minutes < 60) return `${minutes}m ago`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours}h ago`; return `${Math.floor(hours / 24)}d ago`; }
 function unwrap(result) { return result?.data?.data ?? result?.data ?? result; }
 function toast(message) { const node = $('#toast'); node.textContent = message; node.classList.add('show'); clearTimeout(state.toastTimer); state.toastTimer = setTimeout(() => node.classList.remove('show'), 2600); }
-function avatarStyle(user) { return user.avatarUrl ? `style="background-image:url('${safe(user.avatarUrl)}');background-size:cover;color:transparent"` : ''; }
+function avatarStyle(user) {
+  const url = safeUrl(user.avatarUrl);
+  return url ? `style="background-image:url('${url}');background-size:cover;color:transparent"` : '';
+}
 function apiUrl(path) { return `${CONFIG.API_BASE_URL.replace(/\/$/, '')}${path}`; }
 async function api(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { 'Content-Type': 'application/json' };
+  // Only the access token is sent with API calls. The refresh token is kept for a future refresh flow
+  // and is never attached to every request.
   if (auth && state.token) headers.Authorization = `Bearer ${state.token}`;
-  if (state.refresh) headers['x-refresh-token'] = state.refresh;
   const response = await fetch(apiUrl(path), { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) { const message = payload.message; throw new Error(Array.isArray(message) ? message.join('. ') : message || `Request failed (${response.status})`); }
@@ -42,12 +59,12 @@ function postMarkup(post) {
   const author = post.user || {};
   const text = safe(post.content || post.caption || '');
   const highlighted = text.replace(/(^|\s)(#[\p{L}\d_]+)/gu, '$1<span class="hashtag">$2</span>');
-  const isDemo = String(post.id).startsWith('demo-');
   const likes = Number(post.likesCount || 0);
   const liked = Boolean(post.myReaction);
-  const art = post.art && ['campus', 'sunset', 'study'].includes(post.art) ? `<div class="post-art art-${post.art}">${post.art === 'campus' ? '<span class="art-campus-label">A MOMENT AT KABARAK</span>' : ''}</div>` : (post.mediaUrls || []).filter(url => typeof url === 'string').slice(0, 1).map(url => `<img class="post-image" src="${safe(url)}" alt="Shared by ${safe(fullName(author))}" loading="lazy">`).join('');
+  const avatar = avatarStyle(author);
+  const art = post.art && ['campus', 'sunset', 'study'].includes(post.art) ? `<div class="post-art art-${post.art}">${post.art === 'campus' ? '<span class="art-campus-label">A MOMENT AT KABARAK</span>' : ''}</div>` : (post.mediaUrls || []).filter(url => typeof url === 'string').map(safeUrl).filter(Boolean).slice(0, 1).map(url => `<img class="post-image" src="${url}" alt="Shared by ${safe(fullName(author))}" loading="lazy">`).join('');
   const reactions = post.reactions || ['💜', '✨'];
-  return `<article class="post-card" data-post-id="${safe(post.id)}" data-following="${post.following !== false}"><div class="post-top"><span class="avatar post-avatar" ${avatarStyle(author)}>${avatarStyle(author) ? '' : safe(initials(author))}</span><div class="post-identity"><div class="post-name-line"><strong class="post-name">${safe(fullName(author))}</strong>${author.isVerified ? '<span class="verified">✦</span>' : ''}<span class="post-handle">@${safe(author.username || 'student')}</span></div><span class="post-time">${safe(timeAgo(post.createdAt || post.created_at || Date.now()))}</span></div>${post.community ? `<span class="post-circle">${safe(post.community.name || post.community)}</span>` : ''}<button class="post-menu" aria-label="More post options">···</button></div><p class="post-text">${highlighted}</p>${art}<div class="post-reactions"><span class="reaction-bubbles">${reactions.slice(0, 3).map(emoji => `<span>${safe(emoji)}</span>`).join('')}</span><span>${likes || 0} people feel this</span><span>·</span><span>${Number(post.commentsCount || 0)} replies</span></div><div class="post-actions"><button class="post-action ${liked ? 'liked' : ''}" data-action="react"><span>${liked ? '♥' : '♡'}</span> Feel this</button><button class="post-action" data-action="comment"><span>◯</span> Reply</button><button class="post-action" data-action="share"><span>↗</span> Share</button><button class="post-action ${post.saved ? 'saved' : ''}" data-action="save" aria-label="Save post"><span>${post.saved ? '▣' : '♧'}</span></button></div></article>`;
+  return `<article class="post-card" data-post-id="${safe(post.id)}" data-following="${post.following !== false}"><div class="post-top"><span class="avatar post-avatar" ${avatar}>${avatar ? '' : safe(initials(author))}</span><div class="post-identity"><div class="post-name-line"><strong class="post-name">${safe(fullName(author))}</strong>${author.isVerified ? '<span class="verified">✦</span>' : ''}<span class="post-handle">@${safe(author.username || 'student')}</span></div><span class="post-time">${safe(timeAgo(post.createdAt || post.created_at || Date.now()))}</span></div>${post.community ? `<span class="post-circle">${safe(post.community.name || post.community)}</span>` : ''}<button class="post-menu" aria-label="More post options">···</button></div><p class="post-text">${highlighted}</p>${art}<div class="post-reactions"><span class="reaction-bubbles">${reactions.slice(0, 3).map(emoji => `<span>${safe(emoji)}</span>`).join('')}</span><span>${likes || 0} people feel this</span><span>·</span><span>${Number(post.commentsCount || 0)} replies</span></div><div class="post-actions"><button class="post-action ${liked ? 'liked' : ''}" data-action="react"><span>${liked ? '♥' : '♡'}</span> Feel this</button><button class="post-action" data-action="comment"><span>◯</span> Reply</button><button class="post-action" data-action="share"><span>↗</span> Share</button><button class="post-action ${post.saved ? 'saved' : ''}" data-action="save" aria-label="Save post"><span>${post.saved ? '▣' : '♧'}</span></button></div></article>`;
 }
 function renderPosts() {
   const container = $('#posts-container');
@@ -79,8 +96,15 @@ async function loadCampus() {
     state.events = events.items || events.data || (Array.isArray(events) ? events : []);
     renderPosts(); renderEvents();
   } catch (error) {
-    if (/401|unauthori[sz]ed|token/i.test(error.message)) { logout(false); state.posts = demoPosts.map(post => ({ ...post })); state.events = demoEvents; renderPosts(); renderEvents(); toast('Your session ended. Sign in again to reconnect.'); }
-    else { state.posts = demoPosts.map(post => ({ ...post })); state.events = demoEvents; renderPosts(); renderEvents(); toast('Showing a campus preview. The API could not be reached.'); }
+    if (/401|unauthori[sz]ed|token/i.test(error.message)) {
+      logout(false);
+      state.posts = demoPosts.map(post => ({ ...post })); state.events = demoEvents; renderPosts(); renderEvents();
+      toast('Your session ended. Sign in again to reconnect.');
+    } else {
+      // Signed-in users see an honest empty state instead of invented posts.
+      state.posts = []; state.events = []; renderPosts(); renderEvents();
+      toast('Could not reach CampusConnect. Please try again shortly.');
+    }
   }
 }
 async function refreshUser() {
@@ -133,9 +157,14 @@ function bind() {
     const button = event.target.closest('[data-action]'); if (!button) return;
     const card = button.closest('[data-post-id]'); const post = state.posts.find(item => String(item.id) === card.dataset.postId); if (!post) return;
     if (button.dataset.action === 'react') {
-      if (String(post.id).startsWith('demo-') || String(post.id).startsWith('local-')) { post.myReaction = post.myReaction ? null : 'LOVE'; post.likesCount = Math.max(0, Number(post.likesCount || 0) + (post.myReaction ? 1 : -1)); renderPosts(); return; }
+      // The reaction type sent to the server must match the one currently applied, so removing
+      // a reaction sends the same type that was added. Adding a reaction uses LIKE.
+      const previous = post.myReaction || null;
+      const next = previous ? null : 'LIKE';
+      const applyLocally = () => { post.myReaction = next; post.likesCount = Math.max(0, Number(post.likesCount || 0) + (next ? 1 : -1)); renderPosts(); };
+      if (String(post.id).startsWith('demo-') || String(post.id).startsWith('local-')) { applyLocally(); return; }
       if (!state.token) return openAuth('login');
-      try { await api(`/posts/${encodeURIComponent(post.id)}/react`, { method: 'POST', body: { reactionType: post.myReaction ? 'LOVE' : 'LIKE' } }); post.myReaction = post.myReaction ? null : 'LIKE'; post.likesCount = Math.max(0, Number(post.likesCount || 0) + (post.myReaction ? 1 : -1)); renderPosts(); } catch (error) { toast(error.message); }
+      try { await api(`/posts/${encodeURIComponent(post.id)}/react`, { method: 'POST', body: { reactionType: previous || 'LIKE' } }); applyLocally(); } catch (error) { toast(error.message); }
     } else if (button.dataset.action === 'save') { post.saved = !post.saved; button.classList.toggle('saved', post.saved); button.querySelector('span').textContent = post.saved ? '▣' : '♧'; toast(post.saved ? 'Saved for later.' : 'Removed from saved.'); }
     else if (button.dataset.action === 'comment') toast(state.token ? 'Replies are coming soon.' : 'Sign in to join the conversation.');
     else if (button.dataset.action === 'share') { try { await navigator.clipboard.writeText(location.href); toast('CampusConnect link copied.'); } catch { toast('Share this moment with your campus.'); } }
