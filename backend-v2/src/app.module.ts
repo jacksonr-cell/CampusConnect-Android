@@ -34,9 +34,8 @@ import { MailModule }      from './modules/mail/mail.module';
 import { QueueModule }     from './modules/queue/queue.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 
-// ── Round 3 — Uploads, Search, Reports, Admin
+// ── Round 3 — Storage, Search, Reports, Admin
 import { StorageModule } from './modules/storage/storage.module';
-import { UploadsModule } from './modules/uploads/uploads.module';
 import { SearchModule }  from './modules/search/search.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { AdminModule }   from './modules/admin/admin.module';
@@ -107,7 +106,6 @@ import { AdminModule }   from './modules/admin/admin.module';
     GamificationModule,
 
     // ── Round 3 ───────────────────────────────────────────────────────────
-    UploadsModule,
     SearchModule,
     ReportsModule,
     AdminModule,
